@@ -186,5 +186,8 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks
 
-# Remove models dir
+# models dir
 models/
+
+# trained data
+trained_data/
