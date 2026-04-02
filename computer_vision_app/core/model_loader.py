@@ -2,6 +2,11 @@ import os
 import joblib
 import mediapipe as mp
 
+# BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# MP_MODEL_PATH = os.path.join("models", "gesture_recognizer.task")
+# CUSTOM_MODEL_PATH = os.path.join("models", "gesture_model.joblib")
+# ENCODER_PATH = os.path.join("models", "label_encoder.joblib")
+
 MP_MODEL_PATH = "models/gesture_recognizer.task"
 CUSTOM_MODEL_PATH = "models/gesture_model.joblib"
 ENCODER_PATH = "models/label_encoder.joblib"

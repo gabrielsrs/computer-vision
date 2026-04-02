@@ -1,51 +1,54 @@
-import streamlit as st
-from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, VideoHTMLAttributes
-import av
-import sys
-import os
+from fasthtml.common import *
+import cv2
+import numpy as np
+import base64
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from core.model_loader import check_models_exist, load_models
+BASE_DIR = os.path.dirname(os.path.realpath(__file__))
+from core.model_loader import load_models
 from core.gesture_recognition import recognize_gesture
+from core.image_utils import decode_image, encode_image
+
+app, rt = fast_app(live=True, static_path=os.path.join(BASE_DIR, "assets"))
+models = load_models()
 
 
-class GestureVideoProcessor(VideoProcessorBase):
-    def __init__(self):
-        self.models = None
-        try:
-            if check_models_exist():
-                self.models = load_models()
-                self.ready = True
-            else:
-                self.ready = False
-        except Exception:
-            self.ready = False
-
-    def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
-        img = frame.to_ndarray(format="bgr24")
-
-        if self.ready and self.models:
-            img = recognize_gesture(img, self.models)
-
-        return av.VideoFrame.from_ndarray(img, format="bgr24")
-
-
-st.title("Gesture Recognition")
-
-if not check_models_exist():
-    st.error(
-        "Models not found. Please ensure model files exist in the 'models/' directory."
+@rt("/")
+def get():
+    return Html(
+        Head(
+            Title("Gesture Recognition"),
+            Meta(charset="utf-8"),
+            Meta(name="viewport", content="width=device-width, initial-scale=1"),
+            Style("""
+                body { font-family: sans-serif; text-align: center; padding: 20px; }
+                canvas { border: 2px solid #333; margin: 10px; }
+                .status { padding: 10px; border-radius: 5px; margin-bottom: 15px; }
+                .error { background: #ffcccc; color: #990000; }
+                .success { background: #ccffcc; color: #009900; }
+            """),
+        ),
+        Body(
+            H1("Gesture Recognition"),
+            Main(
+                Video(
+                    id="video",
+                    autoplay=True,
+                    playsinline=True,
+                    style="displaay: none",
+                ),
+                Canvas(id="canvas"),
+                Script(src="main.js"),
+            ),
+        ),
     )
-else:
-    st.info("Camera is active. Show your hand gestures!")
 
-    webrtc_streamer(
-        key="gesture-recognition",
-        video_processor_factory=GestureVideoProcessor,
-        media_stream_constraints={
-            "video": {"width": 640, "height": 480},
-            "audio": False,
-        },
-        video_html_attrs=VideoHTMLAttributes(autoPlay=True, controls=False, muted=True),
-    )
+
+@app.ws("/ws")
+async def ws_endpoint(image: str, send):
+    img = decode_image(image)
+    if img is not None:
+        processed_img = recognize_gesture(img, models)
+        await send(encode_image(processed_img))
+
+
+serve()

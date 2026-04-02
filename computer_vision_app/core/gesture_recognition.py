@@ -19,12 +19,13 @@ def recognize_gesture(image, models, timestamp_ms=None):
 
     recognition_result = recognizer.recognize_for_video(mp_image, timestamp_ms)
 
+    gesture_name = None
     if recognition_result.hand_landmarks:
-        for i, hand_landmarks in enumerate(recognition_result.hand_landmarks):
-            mp_hands = mp.tasks.vision.HandLandmarksConnections
-            mp_drawing = mp.tasks.vision.drawing_utils
-            mp_drawing_styles = mp.tasks.vision.drawing_styles
+        mp_hands = mp.tasks.vision.HandLandmarksConnections
+        mp_drawing = mp.tasks.vision.drawing_utils
+        mp_drawing_styles = mp.tasks.vision.drawing_styles
 
+        for i, hand_landmarks in enumerate(recognition_result.hand_landmarks):
             mp_drawing.draw_landmarks(
                 frame,
                 hand_landmarks,
@@ -34,7 +35,8 @@ def recognize_gesture(image, models, timestamp_ms=None):
             )
 
             hand_label = recognition_result.handedness[i][0].category_name
-            handedness_val = 0 if hand_label == "Left" else 1
+            handedness_val = 1 if hand_label == "Left" else 0
+            display_label = "Right" if hand_label == "Left" else "Left"
 
             landmarks_array = [handedness_val]
             for lm in hand_landmarks:
@@ -49,7 +51,7 @@ def recognize_gesture(image, models, timestamp_ms=None):
             color = (0, 255, 0)
 
             display_text = (
-                f"Custom {hand_label}: {gesture_name} ({prediction_prob:.2f})"
+                f"Custom {display_label}: {gesture_name} ({prediction_prob:.2f})"
             )
             cv2.putText(
                 frame,

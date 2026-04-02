@@ -191,3 +191,5 @@ models/
 
 # trained data
 trained_data/
+
+.sesskey
