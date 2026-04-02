@@ -313,6 +313,18 @@ def get():
                             Label(
                                 Input(
                                     type="checkbox",
+                                    id="enable-labels",
+                                    checked=True,
+                                ),
+                                " Show Labels",
+                                cls="config-label",
+                            ),
+                            cls="config-group",
+                        ),
+                        Div(
+                            Label(
+                                Input(
+                                    type="checkbox",
                                     id="enable-landmarks",
                                     checked=True,
                                 ),
@@ -322,33 +334,20 @@ def get():
                             cls="config-group",
                         ),
                         Div(
-                            Label(
-                                Input(
-                                    type="checkbox",
-                                    id="enable-gestures",
-                                    checked=True,
-                                ),
-                                " Show Gestures",
-                                cls="config-label",
-                            ),
-                            cls="config-group",
-                        ),
-                        Div(
                             Div(
                                 Label("Image Quality:", cls="config-label"),
                                 Div(
-                                    Span("60%", id="quality-value"),
-                                    Span("", id="resolution-display"),
+                                    Span("70%", id="quality-value"),
                                     cls="quality-display",
                                 ),
-                                style="display: flex; align-items: center; gap: 4px;"
+                                style="display: flex; align-items: center; gap: 4px;",
                             ),
                             Input(
                                 type="range",
                                 id="image-quality",
                                 min="10",
                                 max="100",
-                                value="60",
+                                value="70",
                             ),
                             cls="config-group",
                         ),
@@ -395,14 +394,24 @@ def get():
 
 
 @app.ws("/ws")
-async def ws_endpoint(image: str, send):
+async def ws_endpoint(
+    image: str,
+    enableLabels: bool,
+    enableLandmarks: bool,
+    imageQuality: int,
+    fps: int,
+    send,
+):
     img = decode_image(image)
     if img is not None:
-        processed_img, gesture_data, matched_gesture = recognize_gesture(img, models)
+        processed_img, gesture_data, matched_gesture = recognize_gesture(
+            img, models, enable_landmarks=enableLandmarks
+        )
         response = {
-            "image": encode_image(processed_img),
+            "image": encode_image(processed_img, imageQuality),
             "gestures": gesture_data,
             "matchedGesture": matched_gesture,
+            "fps": fps,
         }
         await send(json.dumps(response))
 

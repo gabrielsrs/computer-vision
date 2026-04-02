@@ -13,7 +13,7 @@ def decode_image(data_url):
         return None
 
 
-def encode_image(img):
-    _, buf = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, 70])
+def encode_image(img, imageQuality):
+    _, buf = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, imageQuality])
     encoded = base64.b64encode(buf).decode("utf-8")
     return f"data:image/jpeg;base64,{encoded}"

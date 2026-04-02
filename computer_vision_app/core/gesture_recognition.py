@@ -4,7 +4,7 @@ import numpy as np
 import time
 
 
-def recognize_gesture(image, models, timestamp_ms=None):
+def recognize_gesture(image, models, timestamp_ms=None, enable_landmarks=True):
     frame = image.copy()
     recognizer = models["recognizer"]
     clf = models["clf"]
@@ -26,13 +26,14 @@ def recognize_gesture(image, models, timestamp_ms=None):
         mp_drawing_styles = mp.tasks.vision.drawing_styles
 
         for i, hand_landmarks in enumerate(recognition_result.hand_landmarks):
-            mp_drawing.draw_landmarks(
-                frame,
-                hand_landmarks,
-                mp_hands.HAND_CONNECTIONS,
-                mp_drawing_styles.get_default_hand_landmarks_style(),
-                mp_drawing_styles.get_default_hand_connections_style(),
-            )
+            if enable_landmarks:
+                mp_drawing.draw_landmarks(
+                    frame,
+                    hand_landmarks,
+                    mp_hands.HAND_CONNECTIONS,
+                    mp_drawing_styles.get_default_hand_landmarks_style(),
+                    mp_drawing_styles.get_default_hand_connections_style(),
+                )
 
             hand_label = recognition_result.handedness[i][0].category_name
             handedness_val = 1 if hand_label == "Left" else 0
