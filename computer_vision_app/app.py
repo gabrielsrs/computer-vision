@@ -170,14 +170,202 @@ def get():
                     animation: spin 1s linear infinite;
                 }
                 @keyframes spin { to { transform: rotate(360deg); } }
+                .config-panel {
+                    display: flex;
+                    flex-direction: column;
+                    width: 100%;
+                    gap: 20px;
+                }
+                .config-group {
+                    display: flex;
+                }
+                .config-panel {
+                    background: rgba(255, 255, 255, 0.05);
+                    border-radius: 16px;
+                    padding: 20px;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                    margin-bottom: 25px;
+                    max-width: 600px;
+                    width: 100%;
+                }
+                .config-title {
+                    font-size: 1rem;
+                    font-weight: 600;
+                    margin-bottom: 15px;
+                    color: #00d9ff;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+                .config-group {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                    margin-bottom: 15px;
+                    padding-bottom: 15px;
+                }
+                .config-group:last-child {
+                    border-bottom: none;
+                    margin-bottom: 0;
+                    padding-bottom: 0;
+                }
+                .config-label {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    color: rgba(255, 255, 255, 0.85);
+                    font-size: 0.9rem;
+                    cursor: pointer;
+                    transition: color 0.2s ease;
+                }
+                .config-label:hover {
+                    color: #00d9ff;
+                }
+                .config-label input[type="checkbox"] {
+                    appearance: none;
+                    width: 20px;
+                    height: 20px;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 6px;
+                    background: rgba(255, 255, 255, 0.05);
+                    cursor: pointer;
+                    position: relative;
+                    transition: all 0.2s ease;
+                }
+                .config-label input[type="checkbox"]:checked {
+                    background: linear-gradient(135deg, #00d9ff, #00ff88);
+                    border-color: #00ff88;
+                }
+                .config-label input[type="checkbox"]:checked::after {
+                    content: "✓";
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    color: #1a1a2e;
+                    font-size: 12px;
+                    font-weight: 700;
+                }
+                .config-label input[type="range"] {
+                    width: 100%;
+                    height: 6px;
+                    border-radius: 3px;
+                    background: rgba(255, 255, 255, 0.1);
+                    appearance: none;
+                    cursor: pointer;
+                }
+                .config-label input[type="range"]::-webkit-slider-thumb {
+                    appearance: none;
+                    width: 18px;
+                    height: 18px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #00d9ff, #00ff88);
+                    cursor: pointer;
+                    box-shadow: 0 2px 10px rgba(0, 217, 255, 0.4);
+                    transition: transform 0.2s ease;
+                }
+                .config-label input[type="range"]::-webkit-slider-thumb:hover {
+                    transform: scale(1.1);
+                }
+                .quality-display {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 0.8rem;
+                    color: rgba(255, 255, 255, 0.6);
+                }
+                #fps {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    position: absolute;
+                    top: 32px;
+                    right: 32px;
+                    background: rgba(0, 0, 0, 0.6);
+                    padding: 8px 14px;
+                    border-radius: 20px;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(0, 217, 255, 0.3);
+                }
+                #fps .fps-label {
+                    font-size: 0.75rem;
+                    font-weight: 600;
+                    color: rgba(255, 255, 255, 0.7);
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+                .fps-display {
+                    font-size: 1rem;
+                    font-weight: 700;
+                    color: #00ff88;
+                    text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+                }
             """),
         ),
         Body(
             H1("Gesture Recognition"),
             Div(
                 Div(
+                    P(Span("⚙️"), Span("Settings"), cls="config-title"),
+                    Div(
+                        Div(
+                            Label(
+                                Input(
+                                    type="checkbox",
+                                    id="enable-landmarks",
+                                    checked=True,
+                                ),
+                                " Show Landmarks",
+                                cls="config-label",
+                            ),
+                            cls="config-group",
+                        ),
+                        Div(
+                            Label(
+                                Input(
+                                    type="checkbox",
+                                    id="enable-gestures",
+                                    checked=True,
+                                ),
+                                " Show Gestures",
+                                cls="config-label",
+                            ),
+                            cls="config-group",
+                        ),
+                        Div(
+                            Div(
+                                Label("Image Quality:", cls="config-label"),
+                                Div(
+                                    Span("60%", id="quality-value"),
+                                    Span("", id="resolution-display"),
+                                    cls="quality-display",
+                                ),
+                                style="display: flex; align-items: center; gap: 4px;"
+                            ),
+                            Input(
+                                type="range",
+                                id="image-quality",
+                                min="10",
+                                max="100",
+                                value="60",
+                            ),
+                            cls="config-group",
+                        ),
+                        style="display: flex; gap: 20px;",
+                    ),
+                    cls="config-panel",
+                ),
+            ),
+            Div(
+                Div(
                     Div(
                         Canvas(id="canvas"),
+                    ),
+                    Div(
+                        Span("FPS", cls="fps-label"),
+                        Div("0", id="fps-display", cls="fps-display"),
+                        id="fps",
                     ),
                     cls="video-section",
                 ),
