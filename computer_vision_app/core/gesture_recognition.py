@@ -19,7 +19,7 @@ def recognize_gesture(image, models, timestamp_ms=None):
 
     recognition_result = recognizer.recognize_for_video(mp_image, timestamp_ms)
 
-    gesture_name = None
+    gesture_data = []
     if recognition_result.hand_landmarks:
         mp_hands = mp.tasks.vision.HandLandmarksConnections
         mp_drawing = mp.tasks.vision.drawing_utils
@@ -48,19 +48,17 @@ def recognize_gesture(image, models, timestamp_ms=None):
             prediction_prob = np.max(clf.predict_proba(features))
             gesture_name = label_encoder.inverse_transform([prediction_idx])[0]
 
-            color = (0, 255, 0)
-
-            display_text = (
-                f"Custom {display_label}: {gesture_name} ({prediction_prob:.2f})"
-            )
-            cv2.putText(
-                frame,
-                display_text,
-                (20, 50 + (i * 40)),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.7,
-                color,
-                2,
+            gesture_data.append(
+                {
+                    "label": display_label,
+                    "gesture": gesture_name,
+                    "probability": float(prediction_prob),
+                }
             )
 
-    return frame
+    matched_gesture = None
+    if len(gesture_data) == 2:
+        if gesture_data[0]["gesture"] == gesture_data[1]["gesture"]:
+            matched_gesture = gesture_data[0]["gesture"]
+
+    return frame, gesture_data, matched_gesture

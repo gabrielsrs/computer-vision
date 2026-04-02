@@ -2,6 +2,7 @@ from fasthtml.common import *
 import cv2
 import numpy as np
 import base64
+import json
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 from core.model_loader import load_models
@@ -47,8 +48,13 @@ def get():
 async def ws_endpoint(image: str, send):
     img = decode_image(image)
     if img is not None:
-        processed_img = recognize_gesture(img, models)
-        await send(encode_image(processed_img))
+        processed_img, gesture_data, matched_gesture = recognize_gesture(img, models)
+        response = {
+            "image": encode_image(processed_img),
+            "gestures": gesture_data,
+            "matchedGesture": matched_gesture,
+        }
+        await send(json.dumps(response))
 
 
 serve()
